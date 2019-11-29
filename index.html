@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      :root {
+        height: 100%;
+        background-image: linear-gradient(136deg, #fd2f4c -32%, #c40897 83%);
+      }
+
+      body {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .name {
+        font-family: Gotham;
+        font-size: 84px;
+        font-weight: bold;
+        letter-spacing: 1.78px;
+        text-align: center;
+        color: #ffffff;
+        text-transform: uppercase;
+      }
+
+      .table {
+        border-spacing: 10px;
+      }
+
+      .cell {
+        width: 620px;
+        height: 160px;
+        background-color: rgba(255, 255, 255, 0.2);
+
+        text-shadow: 0 10px 40px rgba(95, 0, 96, 0.3);
+        font-family: Gotham;
+        font-size: 64px;
+        font-weight: 900;
+        line-height: 1.19;
+        letter-spacing: 1.36px;
+        color: #ffffff;
+
+        display: flex;
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+        text-transform: uppercase;
+      }
+
+      .cell_selected {
+        animation-duration: 150ms;
+        animation-name: blink;
+        animation-iteration-count: 3;
+      }
+
+      @keyframes blink {
+        0% {
+          background-color: transparent;
+        }
+        50% {
+          background-color: #800099;
+        }
+        100% {
+          background-color: transparent;
+        }
+      }
+
+      .category {
+        width: 620px;
+        height: 160px;
+      }
+
+      .weight {
+        width: 245px;
+        height: 160px;
+      }
+
+      /*  */
+
+      .question {
+        max-width: 1450px;
+        font-family: Gotham;
+        font-size: 84px;
+        font-weight: bold;
+        letter-spacing: 1.78px;
+        text-align: center;
+        color: #ffffff;
+      }
+
+      /*  */
+
+      .cat {
+      }
+      .cat-image {
+        width: 375px;
+        height: 439px;
+        display: block;
+        margin: 54px auto;
+
+        background: white;
+      }
+      .cat-title {
+        font-family: Gotham;
+        font-size: 134px;
+        font-weight: bold;
+        letter-spacing: 2.85px;
+        text-align: center;
+        color: #ffffff;
+        text-transform: uppercase;
+      }
+
+      /*  */
+
+      .auction {
+      }
+      .auction-image {
+        width: 375px;
+        height: 439px;
+        display: block;
+        margin: 54px auto;
+
+        background: white;
+      }
+      .auction-title {
+        font-family: Gotham;
+        font-size: 134px;
+        font-weight: bold;
+        letter-spacing: 2.85px;
+        text-align: center;
+        color: #ffffff;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="name" hidden>своя игра</div>
+
+    <table class="table">
+      <tbody></tbody>
+    </table>
+
+    <div hidden class="question"></div>
+
+    <div class="cat" hidden>
+      <div class="cat-image"></div>
+      <div class="cat-title">код в мешке</div>
+    </div>
+
+    <div class="auction" hidden>
+      <div class="auction-image"></div>
+      <div class="auction-title">вопрос-аукцион</div>
+    </div>
+
+    <template id="row">
+      <tr>
+        <td>
+          <div class="category cell"></div>
+        </td>
+        <td>
+          <div class="weight cell"></div>
+        </td>
+        <td>
+          <div class="weight cell"></div>
+        </td>
+        <td>
+          <div class="weight cell"></div>
+        </td>
+        <td>
+          <div class="weight cell"></div>
+        </td>
+      </tr>
+    </template>
+
+    <script src="questions.js"></script>
+
+    <script>
+      let row = document.querySelector("#row");
+      let tbody = document.querySelector("tbody");
+      let name = document.querySelector(".name");
+      let tableNode = document.querySelector(".table");
+      let questionNode = document.querySelector(".question");
+      let catNode = document.querySelector(".cat");
+      let auctionNode = document.querySelector(".auction");
+
+      name.onclick = () => {
+        name.setAttribute("hidden", true);
+        tableNode.removeAttribute("hidden");
+      };
+
+      function hideAll() {
+        [tableNode, questionNode, catNode, auctionNode].forEach(node =>
+          node.setAttribute("hidden", true)
+        );
+      }
+
+      function openQuestion(question) {
+        tableNode.setAttribute("hidden", true);
+      }
+
+      function closeQuestion() {
+        tableNode.removeAttribute("hidden");
+        questionNode.setAttribute("hidden", true);
+      }
+
+      function renderRow(category) {
+        let rowClone = document.importNode(row.content, true);
+        let categoryName = rowClone.querySelector(".category");
+        let weights = rowClone.querySelectorAll(".weight");
+        let questionWeights = [100, 200, 300, 400];
+
+        categoryName.textContent = category.name;
+        category.questions.forEach((question, index) => {
+          weights[index].textContent = questionWeights[index];
+          weights[index].onclick = () => {
+            weights[index].classList.add("cell_selected");
+            setTimeout(() => {
+              weights[index].classList.remove("cell_selected");
+              hideAll();
+              if (question.cat) {
+                catNode.removeAttribute("hidden");
+                catNode.onclick = () => {
+                  hideAll();
+                  questionNode.textContent = question.text;
+                  questionNode.removeAttribute("hidden");
+                  questionNode.onclick = () => {
+                    hideAll();
+                    weights[index].textContent = "";
+                    tableNode.removeAttribute("hidden");
+                  };
+                };
+              } else if (question.auction) {
+                auctionNode.removeAttribute("hidden");
+                auctionNode.onclick = () => {
+                  hideAll();
+                  questionNode.textContent = question.text;
+                  questionNode.removeAttribute("hidden");
+                  questionNode.onclick = () => {
+                    hideAll();
+                    weights[index].textContent = "";
+                    tableNode.removeAttribute("hidden");
+                  };
+                };
+              } else {
+                hideAll();
+                questionNode.textContent = question.text;
+                questionNode.removeAttribute("hidden");
+                questionNode.onclick = () => {
+                  hideAll();
+                  weights[index].textContent = "";
+                  tableNode.removeAttribute("hidden");
+                };
+              }
+            }, 600);
+          };
+        });
+
+        tbody.appendChild(rowClone);
+      }
+
+      categories.forEach(renderRow);
+    </script>
+  </body>
+</html>
