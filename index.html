@@ -242,7 +242,7 @@
         let rowClone = document.importNode(row.content, true);
         let categoryName = rowClone.querySelector(".category");
         let weights = rowClone.querySelectorAll(".weight");
-        let questionWeights = [100, 200, 300, 400];
+        let questionWeights = [200, 300, 500, 800];
 
         categoryName.textContent = category.name;
         category.questions.forEach((question, index) => {
